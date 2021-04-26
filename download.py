@@ -11,12 +11,15 @@ configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
 
 SPREADSHEET_ID = configuration['sphreadsheet_id']
 TARGET_FOLDER_PATH = configuration['localizationRootFolderPath']
-DOWNLOAD_TARGET = model.LocalizationTarget(sys.argv[1])
+
 
 def main():
   creds = auth.authorize()
   service = build('sheets', 'v4', credentials=creds)
   sheet = service.spreadsheets()
+
+  print('Enter target: LocalizableStrings or LocalizablePlist')
+  DOWNLOAD_TARGET = str(input())
 
   targetSheetRange = DOWNLOAD_TARGET.sheetPageName + '!A:ZZ'
 
