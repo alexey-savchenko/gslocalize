@@ -58,8 +58,8 @@ def main():
 
     pattern = r'(?<=\")(.*?)(?=\")'
 
-    translations = []
-
+    translations = [locale]
+    terms = []
     for item in fileStrings:
       reResult = re.findall(pattern, item)
       if len(reResult) == 3:
@@ -69,7 +69,7 @@ def main():
         print('Invalid string', item)
 
     translationsPackaged = list(map(lambda v: [v], translations))
-    translationsRange = UPLOAD_TARGET + '!' + columnLetter + '2:' + columnLetter
+    translationsRange = UPLOAD_TARGET + '!' + columnLetter + '1:' + columnLetter
     sheet.values().update(
         spreadsheetId=SPREADSHEET_ID,
         range=translationsRange,
@@ -77,14 +77,17 @@ def main():
         body={'values': translationsPackaged}
     ).execute()
 
+  terms.insert(0, 'KEY')
   termsPackaged = list(map(lambda v: [v], terms))
-  rangeToSet = UPLOAD_TARGET + '!A2:A'
+  rangeToSet = UPLOAD_TARGET + '!A1:A'
   sheet.values().update(
       spreadsheetId=SPREADSHEET_ID,
       range=rangeToSet,
       valueInputOption='RAW',
       body={'values': termsPackaged}
   ).execute()
+
+  print('Done!')
 
 
 main()
