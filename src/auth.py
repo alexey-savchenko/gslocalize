@@ -9,8 +9,8 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 def authorize():
   creds = None
 
-  if os.path.exists('authentication.pickle'):
-    with open('authentication.pickle', 'rb') as token:
+  if os.path.exists('src/authentication.pickle'):
+    with open('src/authentication.pickle', 'rb') as token:
       creds = pickle.load(token)
 
   if not creds or not creds.valid:
@@ -18,10 +18,10 @@ def authorize():
       creds.refresh(Request())
     else:
       flow = InstalledAppFlow.from_client_secrets_file(
-          'credentials.json', SCOPES)
+          'src/credentials.json', SCOPES)
       creds = flow.run_local_server(port=55832)
 
-    with open('authentication.pickle', 'wb') as token:
+    with open('src/authentication.pickle', 'wb') as token:
       pickle.dump(creds, token)
 
   return creds

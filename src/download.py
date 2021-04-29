@@ -1,20 +1,19 @@
-
 import yaml
 import os
-import sys
-import auth
-import model
+import src.auth
+from src.model import Translation
 from googleapiclient.discovery import build
 
-configuration_file = open('config.yaml', 'r')
-configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
 
-SPREADSHEET_ID = configuration['sphreadsheet_id']
-TARGET_FOLDER_PATH = configuration['localizationRootFolderPath']
+def main(configFilePath):
 
+  configuration_file = open(configFilePath, 'r')
+  configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
 
-def main():
-  creds = auth.authorize()
+  SPREADSHEET_ID = configuration['sphreadsheet_id']
+  TARGET_FOLDER_PATH = configuration['localizationRootFolderPath']
+
+  creds = src.auth.authorize()
   service = build('sheets', 'v4', credentials=creds)
   sheet = service.spreadsheets()
 
@@ -29,8 +28,10 @@ def main():
   elif DOWNLOAD_TARGET == 'LocalizablePlist':
       targetFileName += '/InfoPlist.strings'
 
-  result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
-                              range=targetSheetRange).execute()
+  result = sheet.values().get(
+      spreadsheetId=SPREADSHEET_ID,
+      range=targetSheetRange
+  ).execute()
   rows = result.get('values', [])
   langs = rows[0][1:]
 
@@ -42,7 +43,7 @@ def main():
       translation = currentRow[langs.index(lang) + 1]
       translation = translation.replace(
           '٪', "%").replace('﹪', "%").replace('％', "%")
-      content.append(model.Translation(
+      content.append(Translation(
           term, translation
       ))
 
@@ -61,5 +62,4 @@ def main():
     f.write(stringContent)
     f.close()
 
-
-main()
+  print('Done!')

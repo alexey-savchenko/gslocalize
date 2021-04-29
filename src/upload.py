@@ -1,20 +1,20 @@
 import yaml
 import os
-import auth
+import src.auth
 import re
 import string
 from googleapiclient.discovery import build
 
-configuration_file = open('config.yaml', 'r')
-configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
 
-SPREADSHEET_ID = configuration['sphreadsheet_id']
-TARGET_FOLDER_PATH = configuration['localizationRootFolderPath']
+def main(configFilePath):
 
+  configuration_file = open(configFilePath, 'r')
+  configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
 
-def main():
+  SPREADSHEET_ID = configuration['sphreadsheet_id']
+  TARGET_FOLDER_PATH = configuration['localizationRootFolderPath']
 
-  creds = auth.authorize()
+  creds = src.auth.authorize()
   service = build('sheets', 'v4', credentials=creds)
   sheet = service.spreadsheets()
 
@@ -88,6 +88,3 @@ def main():
   ).execute()
 
   print('Done!')
-
-
-main()
