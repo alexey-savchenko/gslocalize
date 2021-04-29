@@ -34,6 +34,7 @@ def main():
     for currentRow in rows[1:]:
       term = currentRow[0]
       translation = currentRow[langs.index(lang) + 1]
+      translation = translation.replace('٪', "%").replace('﹪', "%").replace('％', "%")
       content.append(model.Translation(
           term, translation
       ))

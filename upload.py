@@ -1,9 +1,7 @@
 import yaml
 import os
-import sys
 import auth
 import re
-import model
 import string
 from googleapiclient.discovery import build
 
@@ -13,14 +11,15 @@ configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
 SPREADSHEET_ID = configuration['sphreadsheet_id']
 TARGET_FOLDER_PATH = configuration['localizationRootFolderPath']
 
-def main():
 
-  print('Enter target: LocalizableStrings or LocalizablePlist')
-  UPLOAD_TARGET = str(input())
+def main():
 
   creds = auth.authorize()
   service = build('sheets', 'v4', credentials=creds)
   sheet = service.spreadsheets()
+
+  print('Enter target: LocalizableStrings or LocalizablePlist')
+  UPLOAD_TARGET = str(input())
 
   locales = list(
       map(
@@ -33,6 +32,7 @@ def main():
   )
 
   locales.sort()
+  terms = []
 
   for locale in locales:
     columnIndex = locales.index(locale)
@@ -46,54 +46,45 @@ def main():
     elif UPLOAD_TARGET == 'LocalizablePlist':
       targetFile += '/InfoPlist.strings'
 
-    fileStrings = map(
-        lambda v: v.rstrip(),
-        open(targetFile, 'r')
+    fileStrings = list(
+        filter(
+            lambda v: v != '// Localizable.strings' and v != '',
+            map(
+                lambda v: v.rstrip(),
+                open(targetFile, 'r')
+            )
+        )
     )
 
-    # for item in fileStrings:
-    #   if len()
+    pattern = r'(?<=\")(.*?)(?=\")'
 
-    translations = list(map(
-        lambda v: v[1:len(v) - 2],
-        translations
-    ))
+    translations = []
 
-    # print(translations)
-    # contents = []
+    for item in fileStrings:
+      reResult = re.findall(pattern, item)
+      if len(reResult) == 3:
+        terms.append(reResult[0])
+        translations.append(reResult[2])
+      else:
+        print('Invalid string', item)
 
-    # for item in fileStrings:
-    #   components = item.split(' = ')
-    #   term = components[0].replace('"', '')
-    #   translation = ''
-    #   # components[1][1:len(components[1]) - 2]
+    translationsPackaged = list(map(lambda v: [v], translations))
+    translationsRange = UPLOAD_TARGET + '!' + columnLetter + '2:' + columnLetter
+    sheet.values().update(
+        spreadsheetId=SPREADSHEET_ID,
+        range=translationsRange,
+        valueInputOption='RAW',
+        body={'values': translationsPackaged}
+    ).execute()
 
-    #   try:
-    #     translation = components[1][1:len(components[1]) - 2]
-    #   except:
-    #     print(item, components)
+  termsPackaged = list(map(lambda v: [v], terms))
+  rangeToSet = UPLOAD_TARGET + '!A2:A'
+  sheet.values().update(
+      spreadsheetId=SPREADSHEET_ID,
+      range=rangeToSet,
+      valueInputOption='RAW',
+      body={'values': termsPackaged}
+  ).execute()
 
-    # print(term, translation)
-    # print(re.match(pattern, item).group(0))
-  #     rawTranslation = list(map(processRawString, re.match(pattern, item).group(0)))
-  #     if len(rawTranslation) != 2:
-  #       print(rawTranslation)
-  #     contents.append(model.Translation(
-  #         safe_list_get(rawTranslation, 0, ''),
-  #         safe_list_get(rawTranslation, 1, '')
-  #     ))
 
-  #   terms = list(map(lambda v: [v.term], contents))
-  #   translations = list(map(lambda v: [v.translation], contents))
-  #   translationsContainer.append(translations)
-  #   translationsRange = UPLOAD_TARGET + '!' + columnLetter + '2:' + columnLetter
-
-  #   sheet.values().update(
-  #       spreadsheetId=SPREADSHEET_ID, range=translationsRange,
-  #       valueInputOption='RAW', body={'values': translations}).execute()
-
-  # rangeToSet = UPLOAD_TARGET + '!A2:A'
-  # sheet.values().update(
-  #     spreadsheetId=SPREADSHEET_ID, range=rangeToSet,
-  #     valueInputOption='RAW', body={'values': terms}).execute()
 main()
