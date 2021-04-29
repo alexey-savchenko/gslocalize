@@ -21,7 +21,13 @@ def main():
   print('Enter target: LocalizableStrings or LocalizablePlist')
   DOWNLOAD_TARGET = str(input())
 
-  targetSheetRange = DOWNLOAD_TARGET.sheetPageName + '!A:ZZ'
+  targetSheetRange = DOWNLOAD_TARGET + '!A:ZZ'
+
+  targetFileName = ''
+  if DOWNLOAD_TARGET == 'LocalizableStrings':
+      targetFileName += '/Localizable.strings'
+  elif DOWNLOAD_TARGET == 'LocalizablePlist':
+      targetFileName += '/InfoPlist.strings'
 
   result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
                               range=targetSheetRange).execute()
@@ -34,7 +40,8 @@ def main():
     for currentRow in rows[1:]:
       term = currentRow[0]
       translation = currentRow[langs.index(lang) + 1]
-      translation = translation.replace('٪', "%").replace('﹪', "%").replace('％', "%")
+      translation = translation.replace(
+          '٪', "%").replace('﹪', "%").replace('％', "%")
       content.append(model.Translation(
           term, translation
       ))
@@ -47,7 +54,7 @@ def main():
       stringContent += translation.stringValue()
 
     localePath = TARGET_FOLDER_PATH + '/' + lang + '.lproj'
-    filePath = localePath + '/' + DOWNLOAD_TARGET.targetFileName
+    filePath = localePath + targetFileName
     if not os.path.exists(localePath):
       os.makedirs(localePath)
     f = open(filePath, "a")
