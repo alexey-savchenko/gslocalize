@@ -5,7 +5,10 @@ cp -av gslocalize.py /usr/local/bin
 cp -av gslocalize_src /usr/local/bin
 cd /usr/local/bin
 chmod +x gslocalize.py
+cd
+
+echo "alias gslocalize=\"python3 /usr/local/bin/gslocalize.py\"" >> .zshrc
 
 echo ""
 echo ""
-echo "GSLocalize installed. Launch in terminal from any folder with 'gslocalize.py %mode% %path_to_yaml_config%'"
+echo "GSLocalize installed, please relaunch Terminal. Launch in Terminal from any folder with 'gslocalize.py %mode% %path_to_yaml_config%'"
