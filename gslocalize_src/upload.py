@@ -1,6 +1,6 @@
 import yaml
 import os
-import src.auth
+import gslocalize_src.auth
 import re
 import string
 from googleapiclient.discovery import build
@@ -14,7 +14,7 @@ def main(configFilePath):
   SPREADSHEET_ID = configuration['sphreadsheet_id']
   TARGET_FOLDER_PATH = configuration['localizationRootFolderPath']
 
-  creds = src.auth.authorize()
+  creds = gslocalize_src.auth.authorize()
   service = build('sheets', 'v4', credentials=creds)
   sheet = service.spreadsheets()
 

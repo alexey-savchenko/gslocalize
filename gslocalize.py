@@ -1,5 +1,7 @@
-import src.download
-import src.upload
+#!/usr/bin/env python3
+
+import gslocalize_src.download
+import gslocalize_src.upload
 import sys
 
 
@@ -14,9 +16,9 @@ def main():
   configPath = args[2]
 
   if mode == 'upload':
-    src.upload.main(configPath)
+    gslocalize_src.upload.main(configPath)
   elif mode == 'download':
-    src.download.main(configPath)
+    gslocalize_src.download.main(configPath)
   else:
     print('Invalid arguments passed. Pass either "upload" or "downlad", then config path')
 
