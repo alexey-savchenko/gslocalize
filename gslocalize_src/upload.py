@@ -31,55 +31,23 @@ def main(configFilePath):
       )
   )
 
-  locales.sort()
-  terms = []
+  if 'en' in locales:
+    locales.remove('en')
+    locales.insert(0, 'en')
+
+  terms = getTerms('en', TARGET_FOLDER_PATH, UPLOAD_TARGET)
+  processTerms(terms, UPLOAD_TARGET, sheet, SPREADSHEET_ID)
 
   for locale in locales:
-    columnIndex = locales.index(locale)
-    columnLetter = string.ascii_uppercase[1:][columnIndex]
+    processLocale(locales, locale, TARGET_FOLDER_PATH, UPLOAD_TARGET, sheet, SPREADSHEET_ID)
 
-    targetLocaleFolder = TARGET_FOLDER_PATH + '/' + locale + ".lproj"
-    targetFile = targetLocaleFolder
+  print('Done!')
 
-    if UPLOAD_TARGET == 'LocalizableStrings':
-      targetFile += '/Localizable.strings'
-    elif UPLOAD_TARGET == 'LocalizablePlist':
-      targetFile += '/InfoPlist.strings'
-
-    fileStrings = list(
-        filter(
-            lambda v: v != '// Localizable.strings' and v != '',
-            map(
-                lambda v: v.rstrip(),
-                open(targetFile, 'r')
-            )
-        )
-    )
-
-    pattern = r'(?<=\")(.*?)(?=\")'
-
-    translations = [locale]
-    terms = []
-    for item in fileStrings:
-      reResult = re.findall(pattern, item)
-      if len(reResult) == 3:
-        terms.append(reResult[0])
-        translations.append(reResult[2])
-      else:
-        print('Invalid string', item)
-
-    translationsPackaged = list(map(lambda v: [v], translations))
-    translationsRange = UPLOAD_TARGET + '!' + columnLetter + '1:' + columnLetter
-    sheet.values().update(
-        spreadsheetId=SPREADSHEET_ID,
-        range=translationsRange,
-        valueInputOption='RAW',
-        body={'values': translationsPackaged}
-    ).execute()
-
+def processTerms(terms, UPLOAD_TARGET, sheet, SPREADSHEET_ID):
   terms.insert(0, 'KEY')
   termsPackaged = list(map(lambda v: [v], terms))
   rangeToSet = UPLOAD_TARGET + '!A1:A'
+
   sheet.values().update(
       spreadsheetId=SPREADSHEET_ID,
       range=rangeToSet,
@@ -87,4 +55,76 @@ def main(configFilePath):
       body={'values': termsPackaged}
   ).execute()
 
-  print('Done!')
+
+def getTerms(locale, TARGET_FOLDER_PATH, UPLOAD_TARGET):
+  targetLocaleFolder = TARGET_FOLDER_PATH + '/' + locale + ".lproj"
+  targetFile = targetLocaleFolder
+
+  if UPLOAD_TARGET == 'LocalizableStrings':
+    targetFile += '/Localizable.strings'
+  elif UPLOAD_TARGET == 'LocalizablePlist':
+    targetFile += '/InfoPlist.strings'
+
+  fileStrings = list(
+      filter(
+        lambda v: v != '// Localizable.strings' and v != '',
+        map(
+            lambda v: v.rstrip(),
+            open(targetFile, 'r')
+          )
+      )
+  )
+
+  terms = []
+
+  pattern = r'(?<=\")(.*?)(?=\")'
+  for item in fileStrings:
+    reResult = re.findall(pattern, item)
+    if len(reResult) == 3:
+      terms.append(reResult[0])
+    else:
+      print('Invalid string', item)
+    
+  return terms
+
+
+def processLocale(locales, locale, TARGET_FOLDER_PATH, UPLOAD_TARGET, sheet, SPREADSHEET_ID):
+  columnIndex = locales.index(locale)
+  columnLetter = string.ascii_uppercase[1:][columnIndex]
+
+  targetLocaleFolder = TARGET_FOLDER_PATH + '/' + locale + ".lproj"
+  targetFile = targetLocaleFolder
+
+  if UPLOAD_TARGET == 'LocalizableStrings':
+    targetFile += '/Localizable.strings'
+  elif UPLOAD_TARGET == 'LocalizablePlist':
+    targetFile += '/InfoPlist.strings'
+
+  fileStrings = list(
+      filter(
+          lambda v: v != '// Localizable.strings' and v != '',
+          map(
+              lambda v: v.rstrip(),
+              open(targetFile, 'r')
+          )
+      )
+  )
+
+  pattern = r'(?<=\")(.*?)(?=\")'
+
+  translations = [locale]
+  for item in fileStrings:
+    reResult = re.findall(pattern, item)
+    if len(reResult) == 3:
+      translations.append(reResult[2])
+    else:
+      print('Invalid string', item)
+
+  translationsPackaged = list(map(lambda v: [v], translations))
+  translationsRange = UPLOAD_TARGET + '!' + columnLetter + '1:' + columnLetter
+  sheet.values().update(
+      spreadsheetId=SPREADSHEET_ID,
+      range=translationsRange,
+      valueInputOption='RAW',
+      body={'values': translationsPackaged}
+  ).execute()
