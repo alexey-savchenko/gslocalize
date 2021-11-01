@@ -6,7 +6,7 @@ import string
 from googleapiclient.discovery import build
 
 
-def main(configFilePath):
+def main(target, configFilePath):
 
   configuration_file = open(configFilePath, 'r')
   configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
@@ -18,8 +18,7 @@ def main(configFilePath):
   service = build('sheets', 'v4', credentials=creds)
   sheet = service.spreadsheets()
 
-  print('Enter target: LocalizableStrings or LocalizablePlist')
-  UPLOAD_TARGET = str(input())
+  UPLOAD_TARGET = target
 
   locales = list(
       map(

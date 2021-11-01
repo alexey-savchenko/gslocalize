@@ -5,7 +5,7 @@ from gslocalize_src.model import Translation
 from googleapiclient.discovery import build
 
 
-def main(configFilePath):
+def main(target, configFilePath):
 
   configuration_file = open(configFilePath, 'r')
   configuration = yaml.load(configuration_file, Loader=yaml.FullLoader)
@@ -17,15 +17,12 @@ def main(configFilePath):
   service = build('sheets', 'v4', credentials=creds)
   sheet = service.spreadsheets()
 
-  print('Enter target: LocalizableStrings or LocalizablePlist')
-  DOWNLOAD_TARGET = str(input())
-
-  targetSheetRange = DOWNLOAD_TARGET + '!A:ZZ'
+  targetSheetRange = target + '!A:ZZ'
 
   targetFileName = ''
-  if DOWNLOAD_TARGET == 'LocalizableStrings':
+  if target == 'LocalizableStrings':
       targetFileName += '/Localizable.strings'
-  elif DOWNLOAD_TARGET == 'LocalizablePlist':
+  elif target == 'LocalizablePlist':
       targetFileName += '/InfoPlist.strings'
 
   result = sheet.values().get(
