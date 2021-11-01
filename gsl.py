@@ -3,18 +3,20 @@
 import gslocalize_src.download
 import gslocalize_src.upload
 import sys
+import os
 
 
 def main():
   args = sys.argv
 
-  if len(args) != 4:
+  if len(args) != 3:
     print('Invalid arguments passed. Pass either "upload" or "download", next LocalizableStrings or LocalizablePlist, then config path')
     return
 
   mode = args[1]
   target = args[2]
-  configPath = args[3]
+  configPath = os.getcwd() + '/gsl_cfg.yaml'
+  # args[3]
 
   if mode == 'upload':
     gslocalize_src.upload.main(target, configPath)
