@@ -5,7 +5,7 @@ import os
 print('Enter sphreadsheet id: ')
 sphreadsheet_id = str(input())
 
-print('Localization resource root folder absolute path: ')
+print('Localization resource root folder relative path: ')
 localizationRootFolderPath = str(input())
 
 configContents = 'sphreadsheet_id: ' + sphreadsheet_id + '\n' + 'localizationRootFolderPath: ' + localizationRootFolderPath

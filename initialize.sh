@@ -14,4 +14,4 @@ echo "alias gslCreateConfig=\"python3 /usr/local/bin/gslCreateConfig.py\"" >> .z
 
 echo ""
 echo ""
-echo "GSLocalize installed, please relaunch Terminal. Launch in Terminal from any folder with 'gsl %mode% %path_to_yaml_config%'"
+echo "GSLocalize installed, please relaunch Terminal. Launch in Terminal from any folder with 'gsl %download|upload% %LocalizableStrings|LocalizablePlist% %path_to_yaml_config%'"
